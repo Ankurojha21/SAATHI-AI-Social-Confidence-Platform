@@ -99,7 +99,7 @@ export default function Community() {
           <div className="card p-7 bg-white/80 backdrop-blur-md border border-border-subtle shadow-card-lg relative space-y-4">
             <Quote size={32} className="text-primary/40" />
             <p className="text-[20px] font-serif font-bold text-text-primary leading-snug">
-              “You don't need to arrive confident. Just arrive as you are.”
+              “Either I will find a way, or I will make one.”
             </p>
             <p className="text-[13px] text-text-tertiary font-medium">— Confidence Corner</p>
           </div>
