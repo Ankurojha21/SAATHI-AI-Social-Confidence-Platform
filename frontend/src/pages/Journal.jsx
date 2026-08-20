@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { BookOpen, Plus, Sparkles, Calendar, Trash2 } from 'lucide-react';
+import { BookOpen, Plus, Sparkles, Calendar, Trash2, BrainCircuit, Loader2 } from 'lucide-react';
 import DisclaimerStrip from '../components/ui/DisclaimerStrip';
 
 /**
@@ -26,26 +26,44 @@ export default function Journal() {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [tag, setTag] = useState('Daily Reflection');
+  const [sentimentPreview, setSentimentPreview] = useState(null);
+  const [sentimentLoading, setSentimentLoading] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('saathi-journal-entries', JSON.stringify(entries));
   }, [entries]);
 
-  const handleAddEntry = (e) => {
+  const handleAddEntry = async (e) => {
     e.preventDefault();
     if (!title.trim() || !content.trim()) return;
+
+    setSentimentLoading(true);
+    let sentiment = null;
+    try {
+      const res = await fetch('/api/sentiment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: `${title.trim()}. ${content.trim()}`, source: 'journal' }),
+      });
+      if (res.ok) sentiment = await res.json();
+    } catch (error) {
+      console.warn('SaraSense unavailable:', error);
+    }
 
     const newEntry = {
       id: Date.now().toString(),
       title: title.trim(),
       content: content.trim(),
       tag,
+      sentiment,
       date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
     };
 
     setEntries([newEntry, ...entries]);
+    setSentimentPreview(sentiment);
     setTitle('');
     setContent('');
+    setSentimentLoading(false);
   };
 
   const handleDelete = (id) => {
@@ -70,6 +88,32 @@ export default function Journal() {
       </motion.div>
 
       <DisclaimerStrip variant="banner" />
+
+      {sentimentPreview && (
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="card p-5 bg-white/75 border border-border-subtle flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+        >
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-primary-light/40 text-primary flex items-center justify-center">
+              <BrainCircuit size={20} />
+            </div>
+            <div>
+              <p className="text-[12px] uppercase tracking-wider font-semibold text-primary">SaraSense · emotional signal</p>
+              <p className="text-[15px] font-semibold text-text-primary capitalize">{sentimentPreview.emotion} · {sentimentPreview.sentiment}</p>
+              <p className="text-[12px] text-text-secondary mt-0.5">{sentimentPreview.summary}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <div className="text-[12px] text-text-tertiary">Signal intensity</div>
+              <div className="text-[20px] font-bold text-primary">{sentimentPreview.intensity}%</div>
+            </div>
+            <button type="button" onClick={() => setSentimentPreview(null)} className="text-[12px] px-3 py-2 rounded-xl border border-border-subtle text-text-secondary hover:bg-white">Dismiss</button>
+          </div>
+        </motion.div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left: New Entry Form (5 cols) */}
@@ -118,8 +162,8 @@ export default function Journal() {
               disabled={!title.trim() || !content.trim()}
               className="w-full py-3 px-4 rounded-xl bg-primary text-white text-[14px] font-medium flex items-center justify-center gap-2 hover:bg-primary-dark transition-colors disabled:opacity-50 cursor-pointer shadow-card"
             >
-              <Plus size={16} />
-              <span>Save Entry</span>
+              {sentimentLoading ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />}
+              <span>{sentimentLoading ? 'Reading your reflection…' : 'Save Entry'}</span>
             </button>
           </form>
         </div>
@@ -165,6 +209,16 @@ export default function Journal() {
                   <p className="text-[14px] text-text-secondary leading-relaxed whitespace-pre-wrap">
                     {entry.content}
                   </p>
+                  {entry.sentiment?.emotion && (
+                    <div className="flex items-center justify-between gap-3 pt-2">
+                      <div className="inline-flex items-center gap-2 rounded-full bg-primary-light/25 border border-primary/10 px-3 py-1.5 text-[11px] text-primary-dark">
+                        <BrainCircuit size={13} />
+                        <span className="capitalize">{entry.sentiment.emotion}</span>
+                        <span className="text-text-tertiary">· {entry.sentiment.intensity}% signal</span>
+                      </div>
+                      <span className="text-[10px] text-text-tertiary">Not a diagnosis</span>
+                    </div>
+                  )}
                 </motion.div>
               ))}
             </div>

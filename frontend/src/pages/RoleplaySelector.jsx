@@ -1,8 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import DisclaimerStrip from '../components/ui/DisclaimerStrip';
-import useChatStore from '../store/chatStore';
-
+import { useChatStore } from '../store/chatStore';
 /**
  * RoleplaySelector — Matches Reference Image 3
  * Header: PRACTICE ROOM -> Choose a conversation

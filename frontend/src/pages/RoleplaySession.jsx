@@ -8,7 +8,7 @@ import ChatBubble from '../components/ui/ChatBubble';
 import DisclaimerStrip from '../components/ui/DisclaimerStrip';
 import PillChip from '../components/ui/PillChip';
 import SaraAvatar from '../components/ui/SaraAvatar';
-import useChatStore from '../store/chatStore';
+import { useChatStore } from '../store/chatStore';
 import useProgressStore from '../store/progressStore';
 import { synthesizeSpeech } from '../utils/speechUtils';
 

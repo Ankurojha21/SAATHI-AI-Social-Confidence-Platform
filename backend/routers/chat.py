@@ -18,6 +18,7 @@ from database import (
 )
 from services.llm_service import get_companion_response, stream_companion_response
 from services.safety_shield import check_message, redact_text
+from services.sentiment import analyze_sentiment
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -41,6 +42,7 @@ class ChatResponse(BaseModel):
     safety: dict
     suggestions: list[str] = []
     redacted: bool = False
+    sentiment: dict = {}
 
 
 @router.post("/chat", response_model=ChatResponse)
@@ -80,6 +82,7 @@ async def chat(
 
     # Safety Shield: check the (already-redacted) message
     safety_result = await check_message(user_message, deep_check=True)
+    sentiment_result = analyze_sentiment(user_message)
 
     if not safety_result["is_safe"]:
         if safety_result.get("crisis"):
@@ -110,6 +113,7 @@ async def chat(
                 safety=safety_result,
                 suggestions=suggestions,
                 redacted=redacted,
+                sentiment=sentiment_result,
             )
 
         if safety_result["action"] == "block":
@@ -121,6 +125,7 @@ async def chat(
                 safety=safety_result,
                 suggestions=["Practice a conversation", "Try a roleplay"],
                 redacted=redacted,
+                sentiment=sentiment_result,
             )
 
     # Get AI response
@@ -155,6 +160,7 @@ async def chat(
         safety=safety_result,
         suggestions=suggestions,
         redacted=redacted,
+        sentiment=sentiment_result,
     )
 
 

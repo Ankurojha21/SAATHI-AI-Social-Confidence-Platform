@@ -5,9 +5,8 @@ import ChatBubble from '../components/ui/ChatBubble';
 import DisclaimerStrip from '../components/ui/DisclaimerStrip';
 import SaraAvatar from '../components/ui/SaraAvatar';
 import PrePostSurveyModal from '../components/ui/PrePostSurveyModal';
-import useChatStore from '../store/chatStore';
+import { useChatStore } from '../store/chatStore';
 import { synthesizeSpeech } from '../utils/speechUtils';
-
 /**
  * AI Companion ("Sara") — Indian Hinglish Persona & Voice
  * Features:
@@ -74,10 +73,62 @@ export default function AICompanion() {
   const recognitionRef = useRef(null);
 
   const {
-    companionMessages,
-    companionLoading,
-    sendCompanionMessage,
-  } = useChatStore();
+  companionMessages,
+  companionLoading,
+  sendCompanionMessage,
+  lastSentiment,
+} = useChatStore();
+
+{companionMessages.map((msg, i) => (
+  <ChatBubble 
+    key={i} 
+    message={msg.content} 
+    role={msg.role} 
+    onSpeak={() => synthesizeSpeech(msg.content)} 
+  />
+))}
+
+{lastSentiment && (
+  <motion.div
+    initial={{ opacity: 0, y: 8 }}
+    animate={{ opacity: 1, y: 0 }}
+    className="mx-2 mt-2 rounded-2xl border border-primary/10 bg-primary-light/10 p-4"
+  >
+    <div className="flex items-center gap-2">
+      <span className="text-lg">🧠</span>
+
+      <div>
+        <p className="text-[13px] font-semibold text-text-primary">
+          SaraSense
+        </p>
+
+        <p className="text-[12px] text-text-tertiary">
+          Emotional signal from your conversation
+        </p>
+      </div>
+    </div>
+
+    <div className="flex flex-wrap items-center gap-2 mt-3">
+      <span className="rounded-full bg-white px-3 py-1.5 text-[12px] font-medium text-text-primary capitalize shadow-sm">
+        {lastSentiment.emotion || "neutral"}
+      </span>
+
+      <span className="rounded-full bg-white px-3 py-1.5 text-[12px] text-text-secondary capitalize shadow-sm">
+        {lastSentiment.sentiment || "neutral"}
+      </span>
+
+      {typeof lastSentiment.intensity === "number" && (
+        <span className="rounded-full bg-white px-3 py-1.5 text-[12px] text-text-tertiary shadow-sm">
+          {lastSentiment.intensity}% signal
+        </span>
+      )}
+    </div>
+
+    <p className="mt-3 text-[11px] text-text-tertiary">
+      This is a supportive emotional signal, not a medical diagnosis.
+    </p>
+  </motion.div>
+)}
 
   // Auto-scroll
   useEffect(() => {

@@ -90,7 +90,7 @@ async def health_check():
 
 
 # ── Register all routers ─────────────────────────────────────────────────────
-from routers import auth, chat, journey, peer, progress, roleplay, speech, user, weekly_note  # noqa: E402
+from routers import auth, chat, journey, peer, progress, roleplay, speech, user, weekly_note, sentiment  # noqa: E402
 
 app.include_router(auth.router, prefix="/api", tags=["Authentication"])
 app.include_router(chat.router, prefix="/api", tags=["AI Companion"])
@@ -101,4 +101,4 @@ app.include_router(peer.router, prefix="/api", tags=["Peer"])
 app.include_router(speech.router, prefix="/api", tags=["Speech"])
 app.include_router(journey.router, prefix="/api", tags=["Journey"])
 app.include_router(weekly_note.router, prefix="/api", tags=["Weekly Note"])
-
+app.include_router(sentiment.router, prefix="/api", tags=["Sentiment"])

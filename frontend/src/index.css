@@ -1,4 +1,6 @@
+
 /* ─── Tailwind layers ────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@500;600&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -174,7 +176,7 @@ input:focus, input:focus-visible, textarea:focus, textarea:focus-visible {
    SAATHI REFERENCE UI — visual language from the supplied
    legacy/reference screens. Functionality remains unchanged.
    ========================================================== */
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@500;600&display=swap');
+
 
 :root{
   --s-bg-1:#e7e0f8; --s-bg-2:#cfc2ee; --s-bg-3:#bfb0e5;
